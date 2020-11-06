@@ -34,7 +34,7 @@ SELECT Name, Fee__c, (Select  Name, LastName__c, Email__c, DOB__c, Sex__c,
 Spouse_Name__c, Married__c From Students__r Where Name Like 'S%') From Class__c Where Id IN 
 (Select Class__C From Student__c Where Name LIKE 'S%')
 
-** All Teachers who have Hindi and English both subjects
+** All Teachers who have Hindi and English both subjects  
 SELECT Teacher__r.Name From Teach__c Where Subject__c includes ('Hindi;English')
 
 ** All students who have hindi or maths

@@ -1,0 +1,11 @@
+public class OrgInfo {
+    /**
+     * Question: Create a class which show the list of
+     * s-objects exists in org.
+     * @author Abhishek Bishnoi 
+     * */
+    public static List<sObjectType> getAllSObjects(){
+			Map<String, Schema.SObjectType> objectMap = Schema.getGlobalDescribe();
+			return objectMap.values();
+	}
+}

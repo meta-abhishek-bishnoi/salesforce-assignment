@@ -1,0 +1,19 @@
+/**
+* @author Abhishek Bishnoi
+* Question: Create a schedular to mail to opprtunity owner
+* if not modified for last 30 days.
+*/
+global class OpportunityReminder{
+    global void execute(SchedulableContext ctx){
+        List<Opportunity> opportunities = [Select Id, Name, owner.name, owner.email, LastModifiedDate From 
+                                           Opportunity WHERE LastModifiedDate < LAST_N_DAYS:30];
+        List<Id> OpportunityIds = new List<Id>();
+        for(Opportunity opportunity: opportunities){
+            OpportunityIds.add(opportunity.Id);
+        }
+        if(OpportunityIds.size()>0){
+            String msg = 'Oprrtunities With Ids '+OpportunityIds+' are not modified in last 30 days.';
+            EmailManager.sendEmail(opportunities[0].owner.email,'Reminder Opprtunities',msg);
+        }
+    }
+}

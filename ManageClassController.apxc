@@ -1,0 +1,44 @@
+public class ManageClassController {
+    public List<Class__C> classes{get;set;}
+    public Class__C selectedClass{get; set;}
+    public String selectedClassId;
+    public Map<String, Class__C> classMapKeyWithId;
+    public ManageClassController(){
+        classes = getClasses();
+        selectedClass = null;
+        setMap();
+    }
+    public List<Class__C> getClasses(){
+        return [SELECT Id, Name, Board__C, Fee__C, MaxSize__c,Number_Of_Students__c,
+                ClassTeacher__c, DetailedDescription__c From Class__C];
+    }
+    public void deleteClass(){
+        selectedClassId = ApexPages.CurrentPage().getParameters().get('id');
+        Class__c classToBeDelete = classMapKeyWithId.get(selectedClassId);
+        delete classToBeDelete;
+        classMapKeyWithId.remove(selectedClassId);
+        updateContactsInMemoryFromMap();
+    }
+    public void editClass(){
+        selectedClassId = ApexPages.CurrentPage().getParameters().get('id');
+        selectedClass = classMapKeyWithId.get(selectedClassId);
+    }
+    public void setMap(){
+        classMapKeyWithId = new Map<String, Class__C>();
+        for(Class__c current: classes){
+            classMapKeyWithId.put(current.Id, current);
+        }
+    }
+    public void save(){
+        update selectedClass;
+        classMapKeyWithId.put(selectedClass.Id, selectedClass);
+        selectedClass = null;
+        updateContactsInMemoryFromMap();
+    }
+    public void cancel(){
+        selectedClass = null;
+    }
+    public void updateContactsInMemoryFromMap(){
+        classes = new List<Class__C>(classMapKeyWithId.values());        
+    }
+}

@@ -1,0 +1,35 @@
+<apex:page standardController="Account" extensions="AccountSearchWithPaginationController" >
+  <apex:form >
+      <apex:pageBlock title="Account Search" >
+        <apex:pageBlockButtons location="top">
+             <apex:CommandButton action="{!beginning}" 
+                                 reRender="accountData" value="Search" />
+        </apex:pageBlockButtons>
+        <apex:pageBlockSection >
+            <apex:inputText value="{!recordsPerPage}" label="Number Of Accounts to show: "/>
+             <apex:inputText value="{! billingCity}" label="Billing City:"/>
+             <apex:inputText value="{! billingState}" label="Billing State:"/>
+             <apex:inputText value="{! billingCountry}" label="Billing Country:"/>
+          </apex:pageBlockSection>
+      </apex:pageBlock>
+ </apex:form>
+<apex:form id="accountData"  >
+    <apex:pageBlock rendered="{!isAccountListEmpty}">
+
+    <apex:pageBlockTable id="table1" value="{!accountList}" var="account" >
+        <apex:column value="{!account.Name}"/>
+        <apex:column value="{!account.billingCity}"/>
+        <apex:column value="{!account.billingState}"/>
+        <apex:column value="{!account.billingCountry}"/>
+    </apex:pageBlockTable>        
+       
+       <p style="margin-bottom:0.25rem;" >
+       Page {!currentPageNumber} of {!totalNumberOfPages}
+       </p>
+      <apex:commandButton value="First" action="{!first}" disabled="{!(currentPageNumber == 1)}" reRender="accountData" />
+             <apex:commandButton value="Previous" action="{!previous}" disabled="{!(currentPageNumber == 1)}" reRender="accountData"/>
+            <apex:commandButton value="Next" action="{!next}" disabled="{!(currentPageNumber == totalNumberOfPages)}" reRender="accountData"/>
+             <apex:commandButton value="Last" action="{!last}" disabled="{!(currentPageNumber == totalNumberOfPages)}" reRender="accountData"/>       
+        </apex:pageBlock>   
+    </apex:form>
+</apex:page>

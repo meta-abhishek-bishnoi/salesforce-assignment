@@ -1,0 +1,17 @@
+<apex:page standardController="Student__c" renderAs="pdf"
+           applyBodyTag="false" extensions="PdfGeneratorController">
+    <head>
+        <style> 
+            body { font-family: 'Arial Unicode MS'; }
+            .companyName { font: bold 30px; color: red; }  
+        </style>
+    </head>
+    <body>
+
+        <center>
+        <apex:panelGrid columns="1" width="100%">
+          	<apex:outputText value="{!Student__c.Name}"/>
+        </apex:panelGrid>
+        </center>
+    </body>
+</apex:page>

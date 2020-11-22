@@ -1,0 +1,60 @@
+public class AccountExt {
+    private final Opportunity opp;
+    private ApexPages.StandardController con;
+    public List<Contact> contactList {get; set;} 
+    private Id selectedContactId {get; set;}
+    // The extension constructor initializes the private member
+    // variable acct by using the getRecord method from the standard
+    // controller.
+    public AccountExt(ApexPages.StandardController stdController) {
+        this.con = stdController;
+        this.opp = (Opportunity)con.getRecord();
+        this.getContacts();
+    }
+ 
+     public void getSelected()
+    {
+        System.debug('Entered account selection block' + ApexPages.currentPage().getParameters().get('accid'));
+        this.selectedContactId = ApexPages.currentPage().getParameters().get('accid');
+    }
+    
+
+    public void getContacts() {
+     
+     List<Contact> conresults = null;
+    
+     if(this.opp.manager__c == null){     
+         conresults = new List<Contact>();
+     }
+     else {
+        conresults = (List<Contact>)[
+        Select Id, Name, phone, FirstName, LastName,Title,Email from Contact 
+        where Manager__c= :this.opp.manager__c];
+    }    
+    this.contactList = conresults;
+    }        
+    
+    public PageReference save(){        
+        this.opp.billToContact__c = this.selectedContactId;
+        this.con.save();      
+        // Send the user to the detail page for the new Opportunity.
+        PageReference pr = new ApexPages.StandardController(opp).view();
+        pr.setRedirect(true);
+        return pr;
+    }
+    
+    public PageReference clear(){        
+        this.opp.billToContact__c = null;
+        this.con.save();    
+        // Send the user to the detail page for the new Opportunity.
+        PageReference pr = new ApexPages.StandardController(opp).view();
+        pr.setRedirect(true);
+        return pr;
+    }
+    
+    public PageReference cancel(){
+        // Send the user to the detail page for the new Opportunity.
+       return new PageReference('/'+opp.Id);
+    }
+    
+}

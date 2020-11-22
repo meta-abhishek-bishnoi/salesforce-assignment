@@ -1,0 +1,37 @@
+<apex:page controller="ManageClassController">
+    <apex:form>
+    	<apex:pageBlock>
+            <apex:pageBlockTable id="classList" value="{!classes}" var="class">
+                <apex:column value="{!class.Name}"/> 
+                <apex:column value="{!class.ClassTeacher__c}"/>
+                <apex:column value="{!class.Board__C}"/>
+                <apex:column value="{!class.Fee__C}"/>
+                <apex:column value="{!class.MaxSize__c}"/>
+                <apex:column value="{!class.Number_Of_Students__c}"/>
+                <apex:column>
+                <apex:commandButton action="{!editClass}" immediate="true" reRender="editClass" value="Edit">
+                <apex:param name="id" value="{!class.Id}" assignTo="{!SelectedRowId}"/>
+                </apex:commandButton>
+                </apex:column>
+                <apex:column>
+                <apex:commandButton action="{!deleteClass}" immediate="true" reRender="classList" value="Delete">
+                <apex:param name="id" value="{!class.Id}" assignTo="{!SelectedRowId}"/>
+                </apex:commandButton>
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form>
+    <apex:form>
+    	<apex:pageBlock>
+        	<apex:pageBlockSection title="Edit" id="editClass">
+            	<apex:inputField value="{!selectedClass.Name}" label="Class Name" />
+                <apex:inputField value="{!selectedClass.ClassTeacher__c}" label="Class Teacher" />
+                <apex:inputField value="{!selectedClass.Board__C}" label="Board" />
+                <apex:inputField value="{!selectedClass.Fee__C}" label="Fee" />
+                <apex:inputField value="{!selectedClass.MaxSize__c}" label="Max Size" />
+            </apex:pageBlockSection>
+            <apex:commandButton action="{!save}" reRender="editClass, classList" value="Save"/>
+            <apex:commandButton action="{!cancel}" reRender="editClass, classList" value="Cancel"/>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

@@ -30,6 +30,9 @@ public class ManageClassController {
         }
     }
     public void save(){
+        if(selectedClass == null){
+            return ;
+        }
         update selectedClass;
         classMapKeyWithId.put(selectedClass.Id, selectedClass);
         selectedClass = null;

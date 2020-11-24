@@ -1,0 +1,25 @@
+public class TestFactoryShopping {
+    public static void insertProducts(){
+        List<Product2> products = new List<Product2>();
+        for(Integer i=0; i<20; i++){
+            Product2 product = new Product2(Name= 'product '+i, IsActive = true, Family = 'Electronics',
+                                           ProductCode = Utilities.generateRandomString(8),
+                                           Price__c = 99.99, Stock__c = 100);
+           products.add(product); 
+        }
+        insert products;
+    }
+    
+    public static List<Product2> insertProducts(List<Product2> products){
+        update products;
+        return [SELECT Id, name, IsActive, Family, ProductCode, Price__c, Stock__c From Product2];
+    }
+    
+    public static List<product2> getProducts(){
+        return [SELECT Id, name, IsActive, Family, ProductCode, Price__c, Stock__c From Product2];
+    }
+    
+    public static List<PurchaseOrder__c> getPurchaseOrder(){
+        return [SELECT Id, Name, Product__c, Status__c, Quantity__c, Total_Amount__c FROM PurchaseOrder__c];
+    }
+}

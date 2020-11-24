@@ -1,0 +1,83 @@
+@isTest
+public class TestShoppingController {
+    public static List<Product2> productList;
+    public static Map<Id, Cart__c> mapProductCart;
+    public static Map<Id, Product2> mapProducts;
+    public static List<PurchaseOrder__c> placeOrderItems;
+    
+	@testSetup
+    public static void setupData(){
+        TestFactoryShopping.insertProducts();
+    }
+    
+    @isTest
+    public static void initialTest(){
+        placeOrderItems = TestFactoryShopping.getPurchaseOrder();
+        System.assert(placeOrderItems.size()==0);
+    }
+    
+    @isTest
+    public static void addToCart(){
+        ShoppingCartController cart = new ShoppingCartController();
+        productList = TestFactoryShopping.getProducts();
+        ApexPages.currentPage().getParameters().put('id',productList.get(0).Id);
+        ApexPages.currentPage().getParameters().put('operation','add');
+        cart.updateCart();
+        mapProductCart = cart.mapProductCart;
+        System.assert(mapProductCart.size()==1);
+    }
+    
+    @isTest
+    public static void removeFromCart(){
+        ShoppingCartController cart = new ShoppingCartController();
+        productList = TestFactoryShopping.getProducts();
+        ApexPages.currentPage().getParameters().put('id',productList.get(0).Id);
+        ApexPages.currentPage().getParameters().put('operation','remove');
+        cart.updateCart();
+        mapProductCart = cart.mapProductCart;
+        System.assert(mapProductCart.size()==0);
+    }
+    
+    @isTest
+    public static void purchaseItem(){
+        ShoppingCartController cart = new ShoppingCartController();
+        productList = TestFactoryShopping.getProducts();
+        ApexPages.currentPage().getParameters().put('id',productList.get(0).Id);
+        ApexPages.currentPage().getParameters().put('operation','add');
+        cart.updateCart();
+        mapProductCart = cart.mapProductCart;
+        System.assert(mapProductCart.size()==1);
+        cart.placeOrder();
+        System.assert(cart.placeOrderItems.size()==1);
+    }
+    
+    @isTest
+    public static void deleteFromCart(){
+        ShoppingCartController cart = new ShoppingCartController();
+        productList = TestFactoryShopping.getProducts();
+        ApexPages.currentPage().getParameters().put('id',productList.get(0).Id);
+        ApexPages.currentPage().getParameters().put('operation','add');
+        cart.updateCart();
+        mapProductCart = cart.mapProductCart;
+        System.assert(mapProductCart.size()==1);
+        ApexPages.currentPage().getParameters().put('id',productList.get(0).Id);
+        cart.deleteCartItem();
+        System.assert(mapProductCart.size()==0);
+    }
+    
+    @isTest
+    public static void testPaginationButton(){
+        ShoppingCartController cart = new ShoppingCartController();
+        productList = TestFactoryShopping.getProducts();
+        ApexPages.currentPage().getParameters().put('id',productList.get(0).Id);
+        ApexPages.currentPage().getParameters().put('operation','add');
+        for(Integer i=1; i<= 15; i++){
+            cart.updateCart();
+        }
+        cart.next();
+        System.debug(cart.orders.size() == 5);
+        cart.previous();
+        System.debug(cart.orders.size() == 10);
+        
+    }
+}

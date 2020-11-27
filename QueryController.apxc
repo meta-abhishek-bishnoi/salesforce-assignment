@@ -1,0 +1,175 @@
+public with sharing class QueryController {
+
+    public List<SObject> queryResult {get; set;}
+    public String ObjectType {get; set;}
+    public integer currentPageNumber {get;set;}  
+    public integer totalNumberOfPages {get;set;}  
+    public integer recordsPerPage {get;set;}
+    public integer numberOfRecords{get;set;}
+    public integer offset{get;set;}
+    public String sortField{get; set;}
+    public String sortingOrder {get; set;}    
+    public String message {get{
+        if(this.message != null && message != '')
+        {
+            return this.message;
+        }
+        else {
+            if(queryResult.size()==0 && this.SOQLQuery!=null && this.SOQLQuery!=''){
+                this.message = 'No record found';
+                return this.message;
+            }
+            else if(this.SOQLQuery=='' || this.SOQLQuery!=null){
+                this.message = '';
+                return this.message;
+            }
+            return this.message;
+        }
+    } set;}
+    public Boolean showTable {get{
+        if(queryResult.size()>0)
+        {
+        return true;
+        }
+        else {
+        return false;
+        }
+    } set; }
+   
+    public QueryController(){
+       this.currentPageNumber = 0;
+       this.totalNumberOfPages = 0;
+       this.recordsPerPage = 10;
+       this.numberOfRecords = 0;
+       this.offset = 0;
+       this.sortingOrder = 'ASC';
+       this.sortField = 'Name';
+       this.queryResult = new List<SObject>();
+    }
+   
+    public String SOQLQuery { get;
+                             set {
+ 
+          value = value != null?value.toLowercase():'';
+                                       
+          // execute Query if the SOQL query is updated with new value.
+          if(value != '' && value != null && this.SOQLQuery!=null && !value.equals(this.SOQLQuery))
+          {  
+           this.SOQLQuery = value;
+           executeQuery();          
+          }
+          this.SOQLQuery = value;
+      }
+    }
+                           
+   /**
+    * method to execute Query
+   **/                            
+   public void executeQuery()
+   {
+         /** check if we have fetched the data **/
+         this.totalNumberOfPages = 0;
+         this.message = '';
+         this.SOQLQuery = this.soqlQuery;  
+         String query = 'select count() from ' +  this.soqlQuery.substringAfterLast('from');
+         this.currentPageNumber = 1;
+         this.offset = 0;
+         this.queryResult = new List<SObject>();
+
+         try{        
+           this.numberOfRecords = Database.countQuery(query);                                        
+           this.totalNumberOfPages = (Integer)math.ceil((Decimal)this.numberOfRecords/(Decimal)this.recordsPerPage);
+           this.search();
+          }catch(Exception e) {
+                    this.message = e.getMessage();
+         }
+   }                          
+   
+   /**
+   * return fields of Query
+   */
+   public List<String> getQueryFields(){
+   
+    List<String> queryFields = new List<String>();
+           
+    if(queryResult.size() > 0)    
+     {            
+         Map <String, Schema.SObjectField> fieldMap = this.queryResult[0].getSObjectType().getDescribe().fields.getMap();
+         
+       for (String s : fieldMap.keySet()) {
+           
+           if (fieldMap.get(s).getDescribe().isAccessible()) {
+                queryFields.add(s);
+            }
+       
+        }
+     }
+     return queryFields;
+   }
+   
+   /** returns the name of columns asked in query */
+   public List<String> getQueriedFields(){
+       
+       List<String> queriedFields = new List<String>();
+     
+       if(SOQLQuery != '' && SOQLQuery != null){
+            List<String> extractedFields = SOQLQuery.subStringBetween('select','from').split(',');
+            for(String field: extractedFields){
+               queriedFields.add(field.trim());
+               }
+          }
+    return queriedFields;
+   }
+   
+ 
+   public void first(){
+     this.currentPageNumber=1;
+     this.search();
+   }
+   
+   public void previous(){
+    if(currentPageNumber >= 2){
+            currentPageNumber-=1;
+            search();
+        }
+   }
+   
+   public void next(){
+        if(currentPageNumber < totalNumberOfPages){
+            currentPageNumber += 1;
+            search();
+        }
+   }
+ 
+   public void last(){
+   currentPageNumber = totalNumberOfPages;
+        search();
+   }
+   
+   public void search(){            
+            this.offset = (this.currentPageNumber-1)*this.recordsPerPage;
+           
+            system.debug('........' + this.recordsPerPage +  '......' + this.currentPageNumber + '.....' +  this.offset);      
+
+            this.queryResult = Database.query(this.SOQLQuery
+             + ' ORDER BY ' + this.sortField + ' ' + this.sortingOrder
+             + ' LIMIT ' + this.recordsPerPage
+             + ' OFFSET '+ this.offset );
+
+             if(queryResult.size() > 0)    
+             {
+                 this.ObjectType = (String)(this.queryResult[0].getSObjectType().getDescribe().getName());          
+             }
+     
+             system.debug('........' + this.queryResult);
+             
+ }  
+ 
+ public void changeRecordPerPage()
+ {
+     this.currentPageNumber = 1;
+     this.totalNumberOfPages = (Integer)math.ceil((Decimal)this.numberOfRecords/(Decimal)this.recordsPerPage);
+     this.search();
+ }
+   
+}

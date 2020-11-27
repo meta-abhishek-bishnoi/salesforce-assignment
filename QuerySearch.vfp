@@ -1,0 +1,129 @@
+<apex:page controller="QueryPageController" standardStylesheets="false">
+<style type="text/css">
+
+* {
+ font-family: sans-serif;
+}
+table {
+    margin-left: auto;
+    margin-right:auto;
+    margin-top:1rem;    
+}
+
+    table th, table td{
+        border: 1px solid grey;
+         font-family: sans-serif;
+         letter-spacing: 2px;  
+         color: grey;
+         text-align: left;
+         padding: 0.5rem;
+         margin-top:1rem;
+         font-size:14px;
+         max-width: 25rem;
+         min-width: 5rem;
+    }
+   
+    table td{
+       color: #000000;
+    }
+   
+   
+       table th:first-child{
+  border-radius:0.25rem 0 0 0px;  
+}
+
+table th:last-child{
+  border-radius:0px 0.25rem 0 0px;
+}
+         
+        .query-label {
+            font-family: sans-serif;
+            letter-spacing: 2px;  
+            margin-top:1rem;
+            color: #808080bf;
+            text-align:center;
+            display:inline-block;
+            font-size:28px;
+            width:100%;
+         }
+         .query-textarea{
+            font-family: sans-serif;
+            border-radius: 0.75rem;
+            border: 3px solid #80808082;
+            box-shadow: 1px 1px 15px rgba(0, 0, 0, 0.1);
+            letter-spacing: 1px;  
+            margin-top:1rem;
+            color: #000000;
+            text-align:left;
+            display:inline-block;
+            font-size:16px;
+            width:60%;
+            height: 4rem;
+    		padding: 0.2rem;
+         }
+         
+         .wrap {
+              height: 100%;
+              display: flex;
+              margin-top: 2rem;
+              align-items: center;
+              justify-content: center;
+            }
+
+        .submit-btn {
+          width: 140px;
+          height: 45px;
+          font-family: 'Roboto', sans-serif;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 2.5px;
+          font-weight: 500;
+          color: #000;
+          background-color: #fff;
+          border: none;
+          border-radius: 45px;
+          box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease 0s;
+          cursor: pointer;
+          outline: none;
+      }
+     
+     
+        input[type="button" i]{
+            background: #99ccff;
+            border-width: 0px;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+        }
+       
+        input[type="button" i]:disabled {
+             box-shadow: none;
+             background: #e0e0d1;
+             cursor: auto
+        }
+
+        .submit-btn:hover {
+          background-color: #3399ff;
+          box-shadow: 0px 15px 20px rgba(153, 204, 255, 0.4);
+          color: #fff;
+          transform: translateY(-2px);
+        }
+    </style>  
+
+<apex:form >
+
+    <span class="query-label"> Enter SOQL Query </span>
+    <div style="text-align:center;">
+        <apex:inputtextarea styleClass="query-textarea" value="{!query}" />
+       
+        <apex:outputtext value="{!query}" />              
+        <div class="wrap">
+        <apex:commandButton styleClass="submit-btn" value="Run" reRender="queryResult" />
+        </div>
+          <c:query id="queryResult" queryString="{!query}"/>
+
+    </div>
+   
+</apex:form>
+ 
+</apex:page>

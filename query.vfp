@@ -1,0 +1,92 @@
+<apex:component controller="QueryController">
+ 
+    <style type="text/css">
+        a{
+        text-decoration: none;
+        }
+       
+        .pagination-btn {
+        font-family: 'Roboto', sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        padding:0.50rem;
+        letter-spacing: 2.5px;
+        margin-left:0.5rem;
+        margin-right:0.5rem;
+        font-weight: 500;
+        color: #000;
+        background-color: #fff;
+        border: none;
+        border-radius: 1.25rem;
+        box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease 0s;
+        cursor: pointer;
+        outline: none;
+        }
+       
+        .page-number-text{
+        margin-bottom:0.25rem;
+        text-transform:uppercase;
+        font-size: smaller;  
+        }      
+       
+        .pagination-btn:hover {
+        background-color: #99ccff;
+        box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
+        transform: translateY(-2px);
+        }
+       
+        .error-msg{
+        color:red;
+        }
+       
+        .info-msg{
+        color:orange;
+        }
+       
+    </style>    
+   
+    <apex:attribute type="String" description="value from parent" name="queryString" assignTo="{!SOQLQuery}"/>
+   
+     
+        <apex:outputText rendered="{!IF(message !='No record found' , true, false)}"> <p Class="error-msg"> {!message}</p> </apex:outputText>
+       
+        <apex:outputText rendered="{!IF(message =='No record found' , true, false)}"> <p Class="info-msg"> {!message} </p>  </apex:outputText>
+       
+    <apex:outputPanel id="tableData" rendered="{!showTable}">
+            <apex:dataTable value="{!queryResult}" var="record" rendered="{!showTable}"  >
+                    <apex:repeat value="{!QueriedFields}" var="field">
+                    <apex:column >
+                        <apex:facet name="header" > !
+                            <apex:commandLink action="{!search}" reRender="tableData">
+                                {!field}&nbsp;
+                                <!-- <apex:outputText value="{!IF(sortingOrder == 'ASC', '(asc)','(desc)')}" > </apex:outputText> -->
+                                <apex:param name="sortField" value="{!field}" assignTo="{!sortField}" />
+                                <apex:param name="sortingOrder" value="{!IF(sortingOrder == 'DESC', 'ASC','DESC')}" assignTo="{!sortingOrder}" />
+                            </apex:commandLink>
+                        </apex:facet>
+                        <apex:outputText value="{!record[field]}" id="tableValue" />
+                    </apex:column>
+                </apex:repeat>
+            </apex:dataTable>
+           
+            <p class="page-number-text" id="pagenumber" >
+                Page {!currentPageNumber} of {!totalNumberOfPages}
+            </p>
+            <apex:commandButton value="First" styleClass="pagination-btn" action="{!first}" disabled="{!(currentPageNumber == 1)}" reRender="tableData" />
+            <apex:commandButton value="Prev" styleClass="pagination-btn" action="{!previous}" disabled="{!(currentPageNumber == 1)}" reRender="tableData"/>
+            <apex:commandButton value="Next" styleClass="pagination-btn" action="{!next}" disabled="{!(currentPageNumber == totalNumberOfPages)}" reRender="tableData"/>
+            <apex:commandButton value="Last" styleClass="pagination-btn" action="{!last}" disabled="{!(currentPageNumber == totalNumberOfPages)}" reRender="tableData"/>
+           
+            <!-- Records per page -->
+                records/page:
+                <apex:selectList styleClass="pagination-btn" value="{! recordsPerPage }" size="1" >
+                    <apex:selectOption itemValue="10" itemLabel="10" />
+                    <apex:selectOption itemValue="20" itemLabel="20" />
+                    <apex:selectOption itemValue="50" itemLabel="50" />
+                    <apex:actionSupport event="onchange" action="{!changeRecordPerPage}" reRender="tableData" />
+                </apex:selectList>
+        </apex:outputPanel>
+       
+       
+</apex:component>

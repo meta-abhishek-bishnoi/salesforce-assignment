@@ -1,0 +1,3 @@
+public with sharing class QueryPageController {
+    public String query{get;set;}
+}

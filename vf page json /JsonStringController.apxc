@@ -1,0 +1,6 @@
+public class JsonStringController {
+    public String getResponseString(){
+        List<Contact> contacts = [SELECT Id, Name From Contact];
+        return JSON.serialize(contacts);
+    }
+}

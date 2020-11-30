@@ -1,0 +1,36 @@
+public class PdfGeneratorController {
+    public String pdfName;
+    public String parentId;
+    public Student__c student;
+    public PdfGeneratorController(ApexPages.StandardController controller){
+        this.parentId = apexpages.currentpage().getparameters().get('id');
+        this.pdfName = parentId+'-Info.pdf';
+        student = [Select Id, Name From Student__c Where Id = :parentId];
+    }
+    
+    public PageReference savePdf(){
+        this.deletePreviousAttachment();
+        
+        Attachment attach = new Attachment();
+        
+        // the contents of the attachment from the pdf
+        Blob body = Blob.toPdf(student.Name);
+        
+        attach.Body = body;
+        // add the user entered name
+        attach.Name = pdfName;
+        attach.IsPrivate = false;
+        // attach the pdf to the account
+        attach.ParentId = parentId;
+        insert attach;
+        
+        // send the user to the account to view results
+        return new PageReference('/'+parentId);
+    }
+    
+    public void deletePreviousAttachment(){
+        List<Attachment> prevAttachments = new List<Attachment>();
+        prevAttachments=[select id from Attachment where parentId = :parentId And name = :pdfName];
+        delete prevAttachments;
+    }
+}

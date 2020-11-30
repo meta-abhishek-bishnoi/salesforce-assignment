@@ -1,0 +1,32 @@
+<apex:page standardController="Opportunity" extensions="AccountExt" docType="html-5.0">
+    <apex:form >
+    <apex:pageBlock >
+     <apex:pageBlockSection > 
+            <apex:pageBLockTable value="{!contactList}" var="contact">     
+        <apex:column headerValue="Select">
+            <input type="radio" name="<strong>selectRadio</strong>" id= "radio">
+                        <br/>
+                        <apex:actionSupport event="onclick" action="{!getSelected}" reRender="cntblock">
+                            <apex:param name="accid" value="{!contact.id}"/>
+                        </apex:actionSupport>
+                </input>                  
+        </apex:column>
+        <apex:selectRadio value="{! contact.id}" onselect="selectRadio"  > </apex:selectRadio>
+        <apex:column value="{! contact.Name}"/>
+        <apex:column value="{! contact.email}"/>
+        <apex:column value="{! contact.phone}"/>
+        </apex:pageBLockTable>
+     </apex:pageBlockSection>
+
+        <apex:pageblockbuttons >
+            <apex:commandbutton action="{!save}" value="Save" />
+            <apex:commandbutton action="{!clear}" value="Clear" />
+            <apex:commandbutton action="{!cancel}" value="Cancel"/>
+        </apex:pageblockbuttons>
+    </apex:pageBlock>    
+    <apex:outputText value="{!Opportunity.Manager__c}" rendered="false"/>
+       <!-- Contact Block -->
+    <apex:outputPanel id="cntblock">
+    </apex:outputPanel>
+    </apex:form>
+</apex:page>

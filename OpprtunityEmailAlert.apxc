@@ -1,0 +1,29 @@
+/**
+* Send Email Template Through Apex
+*/
+public class OpprtunityEmailAlert {
+    public static void sendOpportunityStatusEmail(Id opprtunityId){
+        Messaging.SingleEmailMessage message = new Messaging.SingleEmailMessage();
+           message.setTargetObjectId(opprtunityId); 
+           message.setUseSignature(false); 
+           message.setBccSender(false); 
+           message.setSaveAsActivity(false); 
+           message.setSenderDisplayName('Notification');
+        
+        EmailTemplate emailTemplate = [Select Id,Subject,Description,HtmlValue,DeveloperName,Body 
+                                       from EmailTemplate where name = 'Opportunity status changed'];
+        message.setTemplateID(emailTemplate.Id); 
+  		message.setWhatId(opprtunityId);
+        Opportunity opp = [SELECT Owner.Email FROM Opportunity WHERE Opportunity.Id =:opprtunityId];
+        message.toAddresses = new String[] {opp.Owner.Email};
+  		Messaging.SingleEmailMessage[] messages = new List<Messaging.SingleEmailMessage> {message};
+  		Messaging.SendEmailResult[] results = Messaging.sendEmail(messages);
+        
+		if (results[0].success) 
+ 		{
+   			System.debug('The email was sent successfully.');
+ 		} else {
+   			System.debug('The email failed to send: ' +  results[0].errors[0].message);
+ 		}
+    }
+}

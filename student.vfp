@@ -1,0 +1,42 @@
+<apex:page controller="studentController">
+    <script>
+    var mySet = new Set(); 
+    function deleteStudents(){
+        var size = mySet.size;
+        if(size<=0){
+            alert ('Please Select Students To delete');
+        }else{
+            if (confirm('Are You Sure To Delete ?')) {
+                Visualforce.remoting.Manager.invokeAction(
+                '{!RemoteAction.studentController.deleteStudents}',
+                    mySet,
+                    handleResult
+                )
+              alert('deleted');
+            } else {
+              alert('cancelled');
+            }
+        }
+    }
+    function doCheckboxChange(checkbox, id){
+    	if(checkbox.checked==true){
+          mySet.add(id);
+    	}
+    	else{
+     		mySet.delete(id);
+    	}
+    }
+    function handleResult(result, event){}
+    </script>
+    <apex:form >
+    	<apex:pageBlock id="list">
+            <button onClick="deleteStudents();" reRender = 'list'>Delete</button>
+            <apex:pageBlockTable value="{!mapStudents}" var="student">
+            	<apex:column>           
+                    <apex:inputCheckbox onclick="doCheckboxChange(this,'{!mapStudents[student].student.id}')"/>
+                </apex:column>
+                <apex:column value="{!mapStudents[student].student.Name}"/>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,27 @@
+public with sharing class studentController {
+    public Map<Id, StudentObject> mapStudents {get; set;}
+    public studentController(){
+        this.mapStudents = getStudents();
+    }
+    
+    public Map<Id, StudentObject> getStudents(){
+        Map<Id, StudentObject> resultMap = new Map<Id, StudentObject>();
+        List<Student__C> listStudents = getListStudents();
+        for(Student__C student : listStudents){
+            StudentObject obj = new StudentObject();
+            obj.isSelected = false;
+            obj.student = student;
+            resultMap.put(student.Id, obj);
+        }
+        return resultMap;
+    }
+    public List<Student__C> getListStudents(){
+      return [SELECT Id, Name From Student__c];  
+    }
+    @RemoteAction
+    public static void deleteStudents(Set<Id> selected){
+        List<Student__c> studentsToBeDelete = [Select Id, Name From Student__C Where Id In :selected];
+        delete studentsToBeDelete;
+        System.debug(studentsToBeDelete);
+    }
+}

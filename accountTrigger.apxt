@@ -1,0 +1,16 @@
+/**
+* Problem with question code:
+* In question code for opeartion performs in O(n^2)
+* but in current code we do the same thing in O(n); 
+*/
+
+trigger accountTrigger on Account (before delete, before insert, before update) {
+    Map<Id, Opportunity> opptysMapClosedLost = new Map <Id, Opportunity>([select id, name, closedate, stagename from Opportunity where accountId IN :Trigger.newMap.keySet() and StageName='Closed - Lost']);
+    Map<Id, Opportunity> opptysMapClosedWon = new Map <Id, Opportunity> ([select id, name, closedate, stagename from Opportunity where accountId IN :Trigger.newMap.keySet() and StageName='Closed - Won']);
+    for(Account a : Trigger.new){
+        if(opptysMapClosedLost.containsKey(a.Id))
+            System.debug('Do more logic here...');
+        if(opptysMapClosedWon.containsKey(a.Id))
+            System.debug('Do more logic here...');
+    }
+}

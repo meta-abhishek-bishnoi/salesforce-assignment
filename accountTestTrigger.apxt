@@ -1,0 +1,18 @@
+/**
+* Problem with question code:
+* In question code we are doing O(n) DML Fetch (DML Query Calls)&
+* Also O(n^2) Insertion Operation (DML Query Calls). 
+* In this Solution we optimise this to O(1) DML Fetch &
+* Also O(1) Insertion Operations (DML Query Calls).
+*/
+
+trigger accountTestTrigger on Account (before insert, before update){
+    Set<ID> accountIds = Trigger.newMap.keySet();
+    List<Contact> contacts = [select id, salutation, firstname, lastname, email from Contact where accountId In :accountIds];
+    List<Contact> contactsToBeUpdate = new List<Contact>();
+    for(Contact contact: contacts){
+        contact.Description=contact.salutation + ' ' + contact.firstName + ' ' + contact.lastname;
+        contactsToBeUpdate.add(contact);
+    }
+    update contactsToBeUpdate;
+}

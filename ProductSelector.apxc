@@ -1,0 +1,19 @@
+public class ProductSelector extends fflib_SObjectSelector{
+
+    public List<Schema.SObjectField> getSObjectFieldList() {
+        return new List<Schema.SObjectField> {};
+    }
+    
+    public Schema.SObjectType getSObjectType() {
+        return Product2.sObjectType;
+    }
+    
+    public List<Product2> getProducts(){
+        return (List<Product2>) Database.query(
+    	newQueryFactory()
+      	.selectFieldSet(SObjectType.Product2.fieldsets.productFieldSet)
+        .setCondition('IsActive = true and Stock__c > 0')
+      	.toSOQL()
+  		);
+    }
+}

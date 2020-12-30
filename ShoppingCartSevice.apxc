@@ -1,0 +1,25 @@
+public class ShoppingCartSevice {
+    public List<PurchaseOrder__c> getOrderList(Integer recordsPerPage, Integer offset){
+        return new PurchaseOrderSelector().getOrderList(recordsPerPage, offset);
+    }
+    
+    public List<Product2> getProducts(){
+        return new ProductSelector().getProducts();
+    }
+    
+    public List<PurchaseOrder__c> placeCartItems(List<Cart__c> cartItems){
+        List<PurchaseOrder__c> placeOrderItems = new List<PurchaseOrder__c>();
+        String OrderNumber = Utilities.generateRandomString(12);
+        for(Cart__c cart: cartItems){
+            placeOrderItems.add(new PurchaseOrder__c(Name = cart.Name, Product__c = cart.Product__c,
+                                                Quantity__C = cart.SelectedItem__c, Status__C = 'Pending',
+                                                    OrderNumber__c = OrderNumber, Price__C = cart.Price__c));
+        }
+        insert placeOrderItems;
+        return placeOrderItems;
+    }
+    
+    public List<Product2> updateProducts(List<Product2> products){
+        return products;
+    }
+}

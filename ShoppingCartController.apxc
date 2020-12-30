@@ -1,0 +1,151 @@
+public class ShoppingCartController {
+    public Integer currentPageNumber {get;set;}   
+    public Integer totalNumberOfPages {get;set;}   
+    public Integer recordsPerPage {get;set;} 
+    public Integer numberOfRecords{get;set;} 
+    public Integer offset{get;set;}
+    public Id selectedProductId;
+    
+    public List<PurchaseOrder__c> orders {get; set;}
+    public String countOrderListQuery {get; set;}
+    public List<Product2> productList;
+    public Map<Id, Cart__c> mapProductCart{get; set;}
+    public Map<Id, Product2> mapProducts{get; set;}
+    public Boolean viewCart {get; set;}
+    public Boolean viewProducts {get; set;}
+    public Boolean disableCartButton {get; set;}
+    public Boolean viewOrders {get; set;}
+    public Boolean viewInvoice {get; set;}
+    public Integer items;
+    public List<PurchaseOrder__c> placeOrderItems {get; set;}
+    public Decimal orderTotal {get; set;}
+    public ShoppingCartSevice service;
+    public ShoppingCartController(){
+        init();
+    }
+    
+    public void getOrderList(){
+        this.offset = (this.currentPageNumber-1)*this.recordsPerPage;
+        this.numberOfRecords = Database.countQuery(countOrderListQuery);
+        this.totalNumberOfPages = this.numberOfRecords / this.recordsPerPage;
+        if(Math.mod(numberOfRecords, recordsPerPage) > 0){
+            this.totalNumberOfPages  += 1;
+        }
+        this.orders = service.getOrderList(this.recordsPerPage , this.offset);
+    }
+    
+    public void initalizePaginations(){  
+        this.currentPageNumber = 1;
+        this.totalNumberOfPages = 1; 
+        this.recordsPerPage= 10;
+        this.offset = 0;
+    }
+    
+    public void previous(){
+        if(currentPageNumber >= 2){
+            currentPageNumber-=1;
+            getOrderList(); 
+        }
+        
+    }
+    
+    public void next(){
+        if(currentPageNumber < totalNumberOfPages){
+            currentPageNumber += 1;
+            getOrderList();
+        } 
+    }
+    
+    public void last(){
+        currentPageNumber = totalNumberOfPages;
+        getOrderList();
+    } 
+    
+    public void first(){
+        currentPageNumber = 1;
+        getOrderList();
+    } 
+    
+    public void setInitalDbQueries(){
+        this.countOrderListQuery = 'SELECT count() FROM PurchaseOrder__c';
+    }
+    
+    public void AddNewPurchase(){
+        viewCart = false;
+        viewProducts = true;
+    }
+    
+    public List<Product2> getProductList(){
+        List<Product2> products = service.getProducts();
+        this.mapProducts= Utilities.getProductMapFromList(products);
+        return products;
+    }
+    
+    public void updateCart(){
+       this.selectedProductId = ApexPages.CurrentPage().getParameters().get('id');
+       String operationType = ApexPages.CurrentPage().getParameters().get('operation');
+        if(operationType == 'remove'){
+            this.items = -1;
+        }else{
+        	this.items = 1;           
+        }
+       updateCartProcess();
+    }
+    
+    public void deleteCartItem(){
+        this.selectedProductId = ApexPages.CurrentPage().getParameters().get('id');
+        Cart__c cartToDelete = mapProductCart.get(selectedProductId);
+        this.items = - Integer.valueOf(cartToDelete.SelectedItem__c);
+        updateCartProcess();
+    }
+    
+    public void updateCartProcess(){
+       Product2 selectedProduct = mapProducts.get(selectedProductId);
+       mapProductCart = Utilities.updateCart(mapProductCart, selectedProduct, items);
+       selectedProduct = Utilities.updateProduct(selectedProduct, items);
+       mapProducts.put(selectedProductId, selectedProduct);
+       disableCartButton = false;
+       if(mapProductCart.size()==0){
+            AddNewPurchase();
+           	disableCartButton = true;
+        }
+    }
+    
+    public void viewCart(){
+        viewCart = true;
+        viewProducts = false;
+    }
+    
+    public void initalizeVisibility(){
+        viewCart = false;
+        viewProducts = false;
+        disableCartButton = true;
+        viewOrders = true;
+        viewInvoice = false;
+    }
+    
+    public void placeOrder(){
+        this.placeOrderItems = service.placeCartItems(mapProductCart.values());
+        this.orderTotal = Utilities.getOrderTotal(mapProductCart.values());
+        service.updateProducts(mapProducts.values());
+        viewCart = false;
+        viewOrders = false;
+        viewInvoice = true;
+    }
+    
+    public void home(){
+        mapProductCart = new Map<Id, Cart__c>();
+        init();
+    }
+    
+    public void init(){
+        service = new ShoppingCartSevice();
+        initalizePaginations();
+        setInitalDbQueries();
+        getOrderList();
+        this.productList = getProductList();
+        initalizeVisibility();
+        orderTotal = 0;
+    }
+
+}

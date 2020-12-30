@@ -1,0 +1,84 @@
+<apex:page controller="ShoppingCartController" tabStyle="PurchaseOrder__c">
+    <apex:form id="order_list">
+        <apex:pageBlock title="Purchase Order History" rendered="{!viewOrders}">
+        	<apex:pageBlockTable value="{!orders}" var="order">
+                <apex:repeat value="{!$ObjectType.PurchaseOrder__c.fieldsets.purchaseFieldSet}" var="fieldValue">
+                   <apex:column value="{!order[fieldValue]}"/>
+            	</apex:repeat>
+            </apex:pageBlockTable>
+            <p style="margin-bottom:0.25rem;" >
+               Page {!currentPageNumber} of {!totalNumberOfPages}
+            </p>
+            <apex:commandButton value="First" action="{!first}" disabled="{!(currentPageNumber == 1)}" reRender="order_list" />
+            <apex:commandButton value="Previous" action="{!previous}" disabled="{!(currentPageNumber == 1)}" reRender="order_list"/>
+            <apex:commandButton value="Next" action="{!next}" disabled="{!(currentPageNumber == totalNumberOfPages)}" reRender="order_list"/>
+            <apex:commandButton value="Last" action="{!last}" disabled="{!(currentPageNumber == totalNumberOfPages)}" reRender="order_list"/>
+            Records Per Page:
+            <apex:selectList value="{!recordsPerPage}" multiselect="false" size="1">
+               <apex:selectOption itemValue="10" itemLabel="10" />
+               <apex:selectOption itemValue="25" itemLabel="25" />
+               <apex:selectOption itemValue="50" itemLabel="50" />
+               <apex:selectOption itemValue="100" itemLabel="100" />
+      		</apex:selectList>
+            <apex:commandButton value="reload" action="{!getOrderList}" reRender="order_list"/>
+        </apex:pageBlock>
+    </apex:form>
+    <apex:form id="product_list">
+        <apex:pageBlock rendered="{!(viewProducts==false)}">
+        	<apex:commandButton value="Add New Purchase" action="{!AddNewPurchase}" reRender="product_list" />
+    	</apex:pageBlock>
+    	<apex:pageBlock title="products" rendered="{!viewProducts}">
+            <apex:commandButton value="View Cart" action="{!viewCart}" reRender="product_list" disabled="{!disableCartButton}"/>
+        	<apex:pageBlockTable value="{!mapProducts}" var="product">
+            	<apex:column value="{!mapProducts[product].ProductCode}"/>
+                <apex:column value="{!mapProducts[product].Name}"/>
+                <apex:column value="{!mapProducts[product].Price__c}"/>
+                <apex:column value="{!mapProducts[product].Stock__c}"/>
+                <apex:column value="{!mapProducts[product].Family}"/>
+                <apex:column >
+                	<apex:commandButton action="{!updateCart}" value="add to cart" immediate="true" reRender="product_list">
+                    	<apex:param name="id" value="{!mapProducts[product].Id}" assignTo="{!selectedProductId}"/>
+                        <apex:param name="operation" value="add" assignTo="{!opeartionType}"/>
+                    </apex:commandButton>    
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+        <apex:pageBlock title="Cart" rendered="{!viewCart}">
+            <apex:commandButton action="{!placeOrder}" value="placeOrder" reRender="product_list, order_list"/>
+            <apex:pageBlockTable value="{!mapProductCart}" var="cart">
+                <apex:column value="{!mapProductCart[cart].Product__c}"/>
+                <apex:column value="{!mapProductCart[cart].Price__C}"/>
+                <apex:column headerValue="Quantity">
+                    <apex:commandButton action="{!updateCart}" value="-" immediate="true" reRender="product_list">
+                    	<apex:param name="id" value="{!mapProductCart[cart].Product__c}" assignTo="{!selectedProductId}"/>
+                        <apex:param name="operation" value="remove" assignTo="{!opeartionType}"/>
+                    </apex:commandButton>  
+                    <apex:outputText value="{!mapProductCart[cart].SelectedItem__c}"/>
+                    <apex:commandButton action="{!updateCart}" value="+" immediate="true" reRender="product_list">
+                    	<apex:param name="id" value="{!mapProductCart[cart].Product__c}" assignTo="{!selectedProductId}"/>
+                        <apex:param name="operation" value="add" assignTo="{!opeartionType}"/>
+                    </apex:commandButton>
+                    <apex:commandButton action="{!deleteCartItem}" value="delete" immediate="true" reRender="product_list">
+                    	<apex:param name="id" value="{!mapProductCart[cart].Product__c}" assignTo="{!selectedProductId}"/>
+                    </apex:commandButton>
+                </apex:column>
+                <apex:column headerValue="Total">
+                    <apex:outputText value="{! mapProductCart[cart].Price__C * mapProductCart[cart].SelectedItem__c }"></apex:outputText>
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+        <apex:pageBlock title="invoice" rendered="{!viewInvoice}">
+            Invoice No: <apex:outputText value="{!OrderNumber}"/>
+            <apex:pageBlockTable value="{!placeOrderItems}" var="order">
+                <apex:column value="{!order.Product__c}"/>
+                <apex:column value="{!order.Quantity__c}"/>
+                <apex:column headerValue="Total">
+                <apex:outputText value="{! order.Price__C * order.Quantity__c }"></apex:outputText>
+                </apex:column>
+                <apex:column value="{!order.Status__c}"/>
+            </apex:pageBlockTable>
+            Total: <apex:outputText value="{!orderTotal}"/> Only. 
+            <apex:commandButton value="Home" action="{!home}"/>
+		</apex:pageBlock>
+    </apex:form>
+</apex:page>

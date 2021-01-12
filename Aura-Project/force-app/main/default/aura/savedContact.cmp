@@ -1,0 +1,12 @@
+<aura:component >
+    <aura:attribute name="contact" type="Contact" />
+    
+    <pre>
+    First Name: <ui:outputText value="{!v.contact.FirstName}"/>
+    Last Name:  <ui:outputText value="{!v.contact.LastName}"/>
+    Email :     <ui:outputText value="{!v.contact.Email}"/>
+    Phone :     <ui:outputText value="{!v.contact.Phone}"/>
+    Fax :       <ui:outputText value="{!v.contact.Fax}"/>
+    </pre>
+	
+</aura:component>

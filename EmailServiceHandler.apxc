@@ -1,0 +1,24 @@
+global class EmailServiceHandler implements Messaging.InboundEmailHandler{
+	global Messaging.InboundEmailResult handleInboundEmail(Messaging.inboundEmail email, 
+                                                           Messaging.InboundEnvelope env){
+    Messaging.InboundEmailResult result = new Messaging.InboundEmailresult();
+    List<Contact> contacts = new List<Contact>();
+    try{
+        for (Messaging.Inboundemail.BinaryAttachment file : email.binaryAttachments){
+      		String fileName = file.fileName;
+            if(fileName.contains('.xml')){
+                contacts = XmlParser.getContactsFromXml(file.body.toString());
+            }
+        }
+    }catch(Exception e){
+        
+    }  
+    
+   if(contacts.size()>0)
+   	{
+        insert contacts;
+    	System.debug(contacts);
+   	}
+    return result;
+   }
+}

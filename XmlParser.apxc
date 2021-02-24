@@ -1,0 +1,44 @@
+public class XmlParser {
+    public static List<Contact> contacts;
+    public static Contact contact;
+    public static List<Contact> getContactsFromXml(String xmlString){
+        contacts = new List<Contact>();
+        DOM.Document doc=new DOM.Document();
+        try{
+            doc.load(xmlString);
+            DOM.XmlNode rootNode = doc.getRootElement();
+            parseXML(rootNode);
+        }catch(Exception e){
+            
+        }
+        return contacts;
+    }
+    
+    private static void parseXML(DOM.XMLNode node) {
+        if (node.getNodeType() == DOM.XMLNodeType.ELEMENT){
+            if(node.getName()=='contact'){
+                if(contact!=null)
+                    contacts.add(contact);
+                contact = new Contact();
+            }
+            if(node.getName()=='firstName'){
+                contact.FirstName = node.getText().trim();
+            }
+            if(node.getName()=='lastName'){
+                contact.LastName = node.getText().trim();
+            }
+            if(node.getName()=='title'){
+                contact.Title = node.getText().trim();
+            }
+            if(node.getName()=='experience'){
+                contact.Experience__c = Decimal.valueOf(node.getText().trim());
+            }
+            if(node.getName()=='sex'){
+                contact.Sex__c = node.getText().trim();
+            }
+        }
+        for (Dom.XMLNode child: node.getChildElements()) {
+            parseXML(child);
+        }
+    }
+}
